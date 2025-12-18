@@ -1,0 +1,30 @@
+{
+  "kind": "singleType",
+  "collectionName": "message_of_the_days",
+  "info": {
+    "singularName": "message-of-the-day",
+    "pluralName": "message-of-the-days",
+    "displayName": "Message of the Day",
+    "description": "Daily message displayed on the homepage"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "message": {
+      "type": "richtext",
+      "required": true
+    },
+    "author": {
+      "type": "string"
+    },
+    "displayDate": {
+      "type": "date"
+    }
+  }
+}
