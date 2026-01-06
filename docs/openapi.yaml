@@ -1,0 +1,209 @@
+openapi: 3.0.3
+info:
+  title: Friends of Nyina wa Jambo API
+  description: Strapi CMS API for the Friends of Nyina wa Jambo website
+  version: 1.0.0
+  contact:
+    name: API Support
+servers:
+  - url: http://localhost:1337/api
+    description: Development server
+paths:
+  /global:
+    get:
+      summary: Get global settings
+      tags: [Global]
+      responses:
+        '200':
+          description: Global settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalResponse'
+  /about:
+    get:
+      summary: Get about page
+      tags: [About]
+      responses:
+        '200':
+          description: About page content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AboutResponse'
+  /articles:
+    get:
+      summary: List articles
+      tags: [Articles]
+      parameters:
+        - $ref: '#/components/parameters/populate'
+        - $ref: '#/components/parameters/pagination'
+        - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          description: List of articles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticlesResponse'
+  /articles/{id}:
+    get:
+      summary: Get article by ID
+      tags: [Articles]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/populate'
+      responses:
+        '200':
+          description: Article details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleResponse'
+  /categories:
+    get:
+      summary: List categories
+      tags: [Categories]
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoriesResponse'
+  /authors:
+    get:
+      summary: List authors
+      tags: [Authors]
+      parameters:
+        - $ref: '#/components/parameters/populate'
+      responses:
+        '200':
+          description: List of authors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorsResponse'
+components:
+  parameters:
+    populate:
+      name: populate
+      in: query
+      description: Relations to populate
+      schema:
+        type: string
+    pagination:
+      name: pagination[page]
+      in: query
+      schema:
+        type: integer
+    sort:
+      name: sort
+      in: query
+      schema:
+        type: string
+  schemas:
+    GlobalResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+            siteName:
+              type: string
+            siteDescription:
+              type: string
+    AboutResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+            title:
+              type: string
+            blocks:
+              type: array
+              items:
+                type: object
+    ArticleResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Article'
+    ArticlesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Article'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    Article:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        slug:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+    CategoriesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+    AuthorsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Author'
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+    PaginationMeta:
+      type: object
+      properties:
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+            pageSize:
+              type: integer
+            pageCount:
+              type: integer
+            total:
+              type: integer
