@@ -8,9 +8,7 @@ export default [
       enabled: true,
       headers: '*',
       origin: [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        process.env.FRONTEND_URL,
+        process.env.FRONTEND_URL || 'http://localhost:3000',
       ].filter(Boolean),
       credentials: true,
     },
