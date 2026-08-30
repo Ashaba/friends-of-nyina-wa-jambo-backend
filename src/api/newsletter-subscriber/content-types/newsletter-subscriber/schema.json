@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "newsletter_subscribers",
+  "info": {
+    "singularName": "newsletter-subscriber",
+    "pluralName": "newsletter-subscribers",
+    "displayName": "Newsletter Subscriber",
+    "description": "People who signed up for the newsletter from the website. The public role may only create these; the list is never readable over the API."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "firstName": {
+      "type": "string",
+      "required": true,
+      "maxLength": 80
+    },
+    "lastName": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "email": {
+      "type": "email",
+      "required": true,
+      "unique": true
+    },
+    "preferences": {
+      "type": "json"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}
