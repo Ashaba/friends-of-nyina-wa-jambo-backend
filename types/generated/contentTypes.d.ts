@@ -506,6 +506,42 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiDailyMessageDailyMessage
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'daily_messages';
+  info: {
+    description: 'One Kibeho message per day, shown on the homepage. The frontend requests the entry whose date is today and whose active flag is set.';
+    displayName: 'Daily Message';
+    pluralName: 'daily-messages';
+    singularName: 'daily-message';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    active: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date: Schema.Attribute.Date &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::daily-message.daily-message'
+    > &
+      Schema.Attribute.Private;
+    message: Schema.Attribute.Text & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    reflection: Schema.Attribute.Text & Schema.Attribute.Required;
+    source: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   collectionName: 'globals';
   info: {
@@ -532,39 +568,6 @@ export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     siteDescription: Schema.Attribute.Text & Schema.Attribute.Required;
     siteName: Schema.Attribute.String & Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiMessageOfTheDayMessageOfTheDay
-  extends Struct.SingleTypeSchema {
-  collectionName: 'message_of_the_days';
-  info: {
-    description: 'Daily message displayed on the homepage';
-    displayName: 'Message of the Day';
-    pluralName: 'message-of-the-days';
-    singularName: 'message-of-the-day';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    author: Schema.Attribute.String;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    displayDate: Schema.Attribute.Date;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::message-of-the-day.message-of-the-day'
-    > &
-      Schema.Attribute.Private;
-    message: Schema.Attribute.RichText & Schema.Attribute.Required;
-    publishedAt: Schema.Attribute.DateTime;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1084,8 +1087,8 @@ declare module '@strapi/strapi' {
       'api::article.article': ApiArticleArticle;
       'api::author.author': ApiAuthorAuthor;
       'api::category.category': ApiCategoryCategory;
+      'api::daily-message.daily-message': ApiDailyMessageDailyMessage;
       'api::global.global': ApiGlobalGlobal;
-      'api::message-of-the-day.message-of-the-day': ApiMessageOfTheDayMessageOfTheDay;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;
