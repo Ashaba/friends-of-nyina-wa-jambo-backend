@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "prayer_requests",
+  "info": {
+    "singularName": "prayer-request",
+    "pluralName": "prayer-requests",
+    "displayName": "Prayer Request",
+    "description": "Intentions submitted from the website. The public role may only create these; intentions are pastoral confidences and are never readable over the API."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "email": {
+      "type": "email"
+    },
+    "category": {
+      "type": "string",
+      "required": true,
+      "maxLength": 60,
+      "default": "General"
+    },
+    "intention": {
+      "type": "text",
+      "required": true,
+      "maxLength": 5000
+    },
+    "isPublic": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}
