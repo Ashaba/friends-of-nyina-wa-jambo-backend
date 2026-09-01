@@ -6,6 +6,8 @@ info:
   contact:
     name: API Support
 servers:
+  - url: https://cms.friendsofnyinawajambo.org/api
+    description: Production server
   - url: http://localhost:1337/api
     description: Development server
 paths:
