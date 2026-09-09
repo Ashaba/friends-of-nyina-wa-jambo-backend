@@ -17,10 +17,10 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },
   "dependencies": {
-    "@strapi/plugin-cloud": "5.23.3",
-    "@strapi/plugin-documentation": "^5.33.0",
-    "@strapi/plugin-users-permissions": "5.23.3",
-    "@strapi/strapi": "5.23.3",
+    "@strapi/plugin-cloud": "5.52.3",
+    "@strapi/plugin-documentation": "5.52.3",
+    "@strapi/plugin-users-permissions": "5.52.3",
+    "@strapi/strapi": "5.52.3",
     "fs-extra": "^10.0.0",
     "mime-types": "^2.1.27",
     "pg": "8.8.0",
@@ -36,7 +36,7 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=18.0.0 <=22.x.x",
+    "node": ">=20.0.0 <=26.x.x",
     "npm": ">=6.0.0"
   },
   "strapi": {
