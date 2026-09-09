@@ -1,0 +1,68 @@
+name: Build (Push)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build & Verify
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: strapi_ci
+          POSTGRES_PASSWORD: strapi_ci
+          POSTGRES_DB: strapi_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U strapi_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check
+        run: pnpm run type-check
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Boot Strapi and verify it serves
+        run: ./.github/scripts/smoke-test.sh
+        env:
+          DATABASE_CLIENT: postgres
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_NAME: strapi_ci
+          DATABASE_USERNAME: strapi_ci
+          DATABASE_PASSWORD: strapi_ci
+          DATABASE_SSL: "false"

@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "description": "A Strapi application",
+  "packageManager": "pnpm@10.29.3",
   "scripts": {
     "build": "strapi build",
+    "type-check": "tsc --noEmit",
     "console": "strapi console",
     "deploy": "strapi deploy",
     "dev": "strapi develop",
