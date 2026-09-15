@@ -34,6 +34,10 @@
       "type": "component",
       "component": "shared.seo",
       "repeatable": false
+    },
+    "notificationEmail": {
+      "type": "email",
+      "private": true
     }
   }
 }
