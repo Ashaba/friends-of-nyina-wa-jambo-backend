@@ -56,6 +56,10 @@ export default factories.createCoreController(UID, ({ strapi }) => ({
         .update({ documentId: existing.documentId, data: subscriber });
     } else {
       await strapi.documents(UID).create({ data: subscriber });
+
+      await strapi
+        .service(UID)
+        .welcome(subscriber.firstName, subscriber.email);
     }
 
     ctx.body = { data: { subscribed: true } };

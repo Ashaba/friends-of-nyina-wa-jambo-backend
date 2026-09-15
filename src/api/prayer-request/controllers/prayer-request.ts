@@ -6,6 +6,7 @@ import {
   requireText,
   trimmedText,
 } from '../../../utils/form-submission';
+import { PrayerRequestFields } from '../../../utils/email-templates';
 
 const UID = 'api::prayer-request.prayer-request';
 
@@ -22,13 +23,7 @@ export default factories.createCoreController(UID, ({ strapi }) => ({
     const body = ctx.request.body as { data?: Record<string, unknown> } | undefined;
     const payload = body?.data ?? {};
 
-    let request: {
-      name?: string;
-      email?: string;
-      category: string;
-      intention: string;
-      isPublic: boolean;
-    };
+    let request: PrayerRequestFields;
 
     try {
       request = {
@@ -44,6 +39,12 @@ export default factories.createCoreController(UID, ({ strapi }) => ({
     }
 
     await strapi.documents(UID).create({ data: request });
+
+    // Sent after the intention is safely stored, and never allowed to fail the
+    // request: an intention recorded but unannounced is a problem for staff to
+    // notice, whereas a 500 here would lose the intention and tell the sender
+    // to write it out again.
+    await strapi.service(UID).announce(request);
 
     ctx.body = { data: { received: true } };
   },
