@@ -1,5 +1,9 @@
 import { factories } from '@strapi/strapi';
-import { getEmailContext, sendEmails } from '../../../utils/email';
+import {
+  OutgoingEmail,
+  getEmailContext,
+  sendEmails,
+} from '../../../utils/email';
 import {
   PrayerRequestFields,
   prayerRequestAcknowledgement,
@@ -23,7 +27,7 @@ export default factories.createCoreService(UID, ({ strapi }) => ({
    */
   async announce(request: PrayerRequestFields): Promise<void> {
     const context = await getEmailContext(strapi);
-    const emails = [];
+    const emails: OutgoingEmail[] = [];
 
     if (context.notificationEmail) {
       emails.push(

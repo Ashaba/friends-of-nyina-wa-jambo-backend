@@ -18,6 +18,8 @@
  * file.
  */
 
+import type { Core } from '@strapi/strapi';
+
 /** A message ready to hand to the provider. */
 export interface OutgoingEmail {
   to: string;
@@ -67,7 +69,9 @@ export function escapeHtmlBlock(value: string): string {
  * stripped from every API response; the document service used here is the
  * internal path and still sees it.
  */
-export async function getEmailContext(strapi): Promise<EmailContext> {
+export async function getEmailContext(
+  strapi: Core.Strapi
+): Promise<EmailContext> {
   try {
     const global = await strapi
       .documents(GLOBAL_UID)
@@ -96,7 +100,7 @@ export async function getEmailContext(strapi): Promise<EmailContext> {
  * should carry on regardless.
  */
 export async function sendEmail(
-  strapi,
+  strapi: Core.Strapi,
   email: OutgoingEmail
 ): Promise<boolean> {
   try {
@@ -116,7 +120,7 @@ export async function sendEmail(
 
 /** Sends several messages together, tolerating individual failures. */
 export async function sendEmails(
-  strapi,
+  strapi: Core.Strapi,
   emails: OutgoingEmail[]
 ): Promise<void> {
   await Promise.all(emails.map((email) => sendEmail(strapi, email)));
