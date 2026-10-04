@@ -479,6 +479,42 @@ export interface ApiDailyMessageDailyMessage
   };
 }
 
+export interface ApiGalleryPhotoGalleryPhoto
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'gallery_photos';
+  info: {
+    description: "A photo from a pilgrimage or gathering, shown on the website's gallery page. Only publish photos the people pictured have agreed to share.";
+    displayName: 'Gallery Photo';
+    pluralName: 'gallery-photos';
+    singularName: 'gallery-photo';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    caption: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 140;
+      }>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    image: Schema.Attribute.Media<'images'> & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::gallery-photo.gallery-photo'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    takenOn: Schema.Attribute.Date & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiGlobalGlobal extends Struct.SingleTypeSchema {
   collectionName: 'globals';
   info: {
@@ -1113,6 +1149,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::daily-message.daily-message': ApiDailyMessageDailyMessage;
+      'api::gallery-photo.gallery-photo': ApiGalleryPhotoGalleryPhoto;
       'api::global.global': ApiGlobalGlobal;
       'api::newsletter-subscriber.newsletter-subscriber': ApiNewsletterSubscriberNewsletterSubscriber;
       'api::prayer-request.prayer-request': ApiPrayerRequestPrayerRequest;

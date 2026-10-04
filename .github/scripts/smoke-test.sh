@@ -57,7 +57,7 @@ fi
 
 # The admin panel is served from the build output, so a 200 here confirms the
 # build artifact was produced and is being served rather than just compiled.
-for path in /_health /admin /api/daily-messages; do
+for path in /_health /admin /api/daily-messages /api/gallery-photos; do
   status="$(curl -s -o /dev/null -w "%{http_code}" "${BASE_URL}${path}")"
   if [[ ! "$status" =~ ^(200|204)$ ]]; then
     echo "GET ${path} returned ${status}, expected 200 or 204"

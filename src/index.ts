@@ -1,4 +1,9 @@
 import type { Core } from '@strapi/strapi';
+import {
+  describeImageSlotsInAdmin,
+  enforceImageSlots,
+  measureImagesAsDisplayed,
+} from './utils/image-slots';
 
 /**
  * API actions the website needs available to unauthenticated visitors.
@@ -22,6 +27,7 @@ import type { Core } from '@strapi/strapi';
 const PUBLIC_PERMISSIONS = [
   'api::daily-message.daily-message.find',
   'api::daily-message.daily-message.findOne',
+  'api::gallery-photo.gallery-photo.find',
 ];
 
 async function grantPublicPermissions(strapi: Core.Strapi): Promise<void> {
@@ -57,7 +63,9 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/* { strapi }: { strapi: Core.Strapi } */) {},
+  register({ strapi }: { strapi: Core.Strapi }) {
+    enforceImageSlots(strapi);
+  },
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -68,5 +76,7 @@ export default {
    */
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
     await grantPublicPermissions(strapi);
+    await measureImagesAsDisplayed(strapi);
+    await describeImageSlotsInAdmin(strapi);
   },
 };
