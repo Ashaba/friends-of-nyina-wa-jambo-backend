@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "gallery_photos",
+  "info": {
+    "singularName": "gallery-photo",
+    "pluralName": "gallery-photos",
+    "displayName": "Gallery Photo",
+    "description": "A photo from a pilgrimage or gathering, shown on the website's gallery page. Only publish photos the people pictured have agreed to share."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "caption": {
+      "type": "string",
+      "required": true,
+      "maxLength": 140
+    },
+    "takenOn": {
+      "type": "date",
+      "required": true
+    }
+  }
+}

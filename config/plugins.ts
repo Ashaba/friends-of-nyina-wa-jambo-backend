@@ -1,4 +1,15 @@
+import {
+  UPLOAD_ALLOWED_TYPES,
+  UPLOAD_SIZE_LIMIT_BYTES,
+} from '../src/utils/image-slots';
+
 export default () => ({
+  upload: {
+    config: {
+      sizeLimit: UPLOAD_SIZE_LIMIT_BYTES,
+      security: { allowedTypes: UPLOAD_ALLOWED_TYPES },
+    },
+  },
   documentation: {
     enabled: true,
     config: {
