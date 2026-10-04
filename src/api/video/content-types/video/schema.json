@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "videos",
+  "info": {
+    "singularName": "video",
+    "pluralName": "videos",
+    "displayName": "Video",
+    "description": "A YouTube video shown on the website's videos page, newest first. Paste the link from YouTube; the video itself stays on YouTube. Leave the thumbnail empty to use YouTube's own."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "youtubeUrl": {
+      "type": "string",
+      "required": true,
+      "regex": "^https://(www\\.|m\\.)?(youtube\\.com/(watch\\?v=|embed/|shorts/)|youtu\\.be/)[A-Za-z0-9_-]{11}"
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "category": {
+      "type": "enumeration",
+      "required": true,
+      "enum": ["Pilgrimages", "Visionary Encounters", "Testimonies", "Prayers"]
+    },
+    "publishedDate": {
+      "type": "date",
+      "required": true
+    },
+    "thumbnail": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    }
+  }
+}

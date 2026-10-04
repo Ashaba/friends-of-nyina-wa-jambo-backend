@@ -1,4 +1,5 @@
 import type { Core } from '@strapi/strapi';
+import { enforceEventDateOrder } from './utils/event-dates';
 import {
   describeImageSlotsInAdmin,
   enforceImageSlots,
@@ -28,6 +29,8 @@ const PUBLIC_PERMISSIONS = [
   'api::daily-message.daily-message.find',
   'api::daily-message.daily-message.findOne',
   'api::gallery-photo.gallery-photo.find',
+  'api::event.event.find',
+  'api::video.video.find',
 ];
 
 async function grantPublicPermissions(strapi: Core.Strapi): Promise<void> {
@@ -65,6 +68,7 @@ export default {
    */
   register({ strapi }: { strapi: Core.Strapi }) {
     enforceImageSlots(strapi);
+    enforceEventDateOrder(strapi);
   },
 
   /**

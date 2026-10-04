@@ -8,8 +8,9 @@
  * To give another media field its own requirement, add an entry to
  * IMAGE_SLOTS.
  */
-import type { Core, Modules, UID } from '@strapi/strapi';
+import type { Core, UID } from '@strapi/strapi';
 import { errors } from '@strapi/utils';
+import { validateAfterWrite } from './validate-after-write';
 
 export const UPLOAD_SIZE_LIMIT_BYTES = 10 * 1024 * 1024;
 
@@ -20,11 +21,20 @@ const UPLOAD_ALLOWED_FORMATS_LABEL = 'JPEG, PNG or WebP';
 
 type AspectRatio = readonly [width: number, height: number];
 
+// "croppedToFit" accepts any shape, portrait included, because the website
+// crops the photo to its slot. It is the easiest rule for editors to meet.
+type ImageShape =
+  | { kind: 'croppedToFit' }
+  | {
+      kind: 'landscape';
+      narrowestAspectRatio: AspectRatio;
+      widestAspectRatio: AspectRatio;
+    };
+
 interface ImageRequirement {
   minWidth: number;
   minHeight: number;
-  narrowestAspectRatio: AspectRatio;
-  widestAspectRatio: AspectRatio;
+  shape: ImageShape;
 }
 
 interface ImageSlot {
@@ -48,25 +58,65 @@ const IMAGE_SLOTS: ImageSlot[] = [
     requirement: {
       minWidth: 1200,
       minHeight: 800,
-      narrowestAspectRatio: [4, 3],
-      widestAspectRatio: [16, 9],
+      shape: {
+        kind: 'landscape',
+        narrowestAspectRatio: [4, 3],
+        widestAspectRatio: [16, 9],
+      },
+    },
+  },
+  {
+    // The featured event banner is 21:9 and at most 1024 CSS pixels wide.
+    // 1200 wide is met by a phone photo forwarded over WhatsApp, either way up.
+    contentType: 'api::event.event',
+    field: 'image',
+    requirement: {
+      minWidth: 1200,
+      minHeight: 600,
+      shape: { kind: 'croppedToFit' },
+    },
+  },
+  {
+    // Video cards are 16:9 and at most 368 CSS pixels wide.
+    contentType: 'api::video.video',
+    field: 'thumbnail',
+    requirement: {
+      minWidth: 800,
+      minHeight: 450,
+      shape: { kind: 'croppedToFit' },
     },
   },
 ];
 
-const WRITE_ACTIONS = new Set(['create', 'update', 'publish']);
-
 const ratio = ([width, height]: AspectRatio): number => width / height;
+
+function fitsShape(aspectRatio: number, shape: ImageShape): boolean {
+  switch (shape.kind) {
+    case 'croppedToFit':
+      return true;
+    case 'landscape':
+      return (
+        aspectRatio >= ratio(shape.narrowestAspectRatio) &&
+        aspectRatio <= ratio(shape.widestAspectRatio)
+      );
+  }
+}
 
 function describeImageRequirement({
   minWidth,
   minHeight,
-  narrowestAspectRatio,
-  widestAspectRatio,
+  shape,
 }: ImageRequirement): string {
-  const shape = `${narrowestAspectRatio.join(':')} to ${widestAspectRatio.join(':')}`;
+  const size = `at least ${minWidth} × ${minHeight} pixels`;
   const sizeLimitMb = UPLOAD_SIZE_LIMIT_BYTES / 1024 / 1024;
-  return `Landscape photo (${shape}), at least ${minWidth} × ${minHeight} pixels. ${UPLOAD_ALLOWED_FORMATS_LABEL}, up to ${sizeLimitMb} MB.`;
+  const formats = `${UPLOAD_ALLOWED_FORMATS_LABEL}, up to ${sizeLimitMb} MB.`;
+
+  switch (shape.kind) {
+    case 'croppedToFit':
+      return `Photo of any shape, ${size}. The website crops it to fit, so keep the subject near the middle. ${formats}`;
+    case 'landscape':
+      return `Landscape photo (${shape.narrowestAspectRatio.join(':')} to ${shape.widestAspectRatio.join(':')}), ${size}. ${formats}`;
+  }
 }
 
 function assertImageMeetsRequirement(
@@ -80,12 +130,10 @@ function assertImageMeetsRequirement(
     );
   }
 
-  const aspectRatio = width / height;
   const fits =
     width >= requirement.minWidth &&
     height >= requirement.minHeight &&
-    aspectRatio >= ratio(requirement.narrowestAspectRatio) &&
-    aspectRatio <= ratio(requirement.widestAspectRatio);
+    fitsShape(width / height, requirement.shape);
 
   if (!fits) {
     throw new errors.ValidationError(
@@ -96,39 +144,26 @@ function assertImageMeetsRequirement(
 
 /**
  * Rejects a save or publish whose image does not fit its slot.
- *
- * Checks the stored entry after the write, inside the same transaction, so
- * every write path is covered (the admin's save and publish, and a REST create
- * that publishes in one step) and a rejected image rolls the write back.
  */
 export function enforceImageSlots(strapi: Core.Strapi): void {
-  strapi.documents.use(async (context, next) => {
+  const contentTypes = new Set(IMAGE_SLOTS.map((slot) => slot.contentType));
+
+  for (const contentType of contentTypes) {
     const slots = IMAGE_SLOTS.filter(
-      (slot) => slot.contentType === context.uid
+      (slot) => slot.contentType === contentType
     );
-    if (!slots.length || !WRITE_ACTIONS.has(context.action)) return next();
-
-    return strapi.db.transaction(async () => {
-      const result = await next();
-      const documentId =
-        ('documentId' in context.params && context.params.documentId) ||
-        (result as { documentId: string }).documentId;
-
-      const populate = slots.map(
-        ({ field }) => field
-      ) as Modules.Documents.Params.Populate.Any<UID.ContentType>;
-      const document = await strapi
-        .documents(context.uid as UID.ContentType)
-        .findOne({ documentId, populate });
-
-      for (const { field, requirement } of slots) {
-        const image = document?.[field] as StoredImage | null | undefined;
-        if (image) assertImageMeetsRequirement(image, requirement);
-      }
-
-      return result;
-    });
-  });
+    validateAfterWrite(
+      strapi,
+      contentType,
+      (document) => {
+        for (const { field, requirement } of slots) {
+          const image = document[field] as StoredImage | null | undefined;
+          if (image) assertImageMeetsRequirement(image, requirement);
+        }
+      },
+      slots.map(({ field }) => field)
+    );
+  }
 }
 
 /**
